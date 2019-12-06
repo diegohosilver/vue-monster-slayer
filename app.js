@@ -2,6 +2,11 @@ new Vue({
     el: '#app',
     
     data: {
+
+        actions: {
+            attack: 'attack',
+            heal: 'heal'
+        },
         
         player: {
             name: 'You',
@@ -70,23 +75,33 @@ new Vue({
             return finished;
         },
 
-        playerTurn(multiplier = 1) {
+        playerTurn(action, multiplier = 1) {
 
-            this.monster.health -= this.getDamageToDeal(this.player) * multiplier;
+            if (action === this.actions.attack) {
+                this.monster.health -= this.getDamageToDeal(this.player) * multiplier;
+            }
+            else {
+                if (this.player.health < 100) {
+                    this.player.health += this.player.damage.max;
+                }
+                if (this.player.health > 100) {
+                    this.player.health = 100;
+                }
+            }      
 
             return this.assertGameFinished(this.player, this.monster);
         },
 
-        monsterTurn() {
+        monsterTurn(multiplier = 1) {
 
-            this.player.health -= this.getDamageToDeal(this.monster);
-
-            this.assertGameFinished(this.monster, this.player);
+            this.player.health -= this.getDamageToDeal(this.monster) * multiplier;
+            
+            return this.assertGameFinished(this.monster, this.player);
         },
 
         attack() {
 
-            let hasWon = this.playerTurn();
+            let hasWon = this.playerTurn(this.actions.attack);
 
             if (hasWon) {
                 return;
@@ -98,7 +113,7 @@ new Vue({
         specialAttack() {
 
             // Duplicate damage dealt
-            let hasWon = this.playerTurn(2);
+            let hasWon = this.playerTurn(this.actions.attack, 2);
             
             if (hasWon) {
                 return;
@@ -109,6 +124,10 @@ new Vue({
 
         heal() {
 
+            this.playerTurn(this.actions.heal);
+
+            // Monster deals 0.5 damage when player heals
+            this.monsterTurn(0.5);
         },
 
         giveUp() {
