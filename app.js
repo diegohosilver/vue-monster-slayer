@@ -70,21 +70,41 @@ new Vue({
             return finished;
         },
 
-        attack() {
+        playerTurn(multiplier = 1) {
 
-            this.monster.health -= this.getDamageToDeal(this.player);
+            this.monster.health -= this.getDamageToDeal(this.player) * multiplier;
 
-            if (this.assertGameFinished(this.player, this.monster)) {
-                return;
-            }
+            return this.assertGameFinished(this.player, this.monster);
+        },
+
+        monsterTurn() {
 
             this.player.health -= this.getDamageToDeal(this.monster);
 
             this.assertGameFinished(this.monster, this.player);
         },
 
+        attack() {
+
+            let hasWon = this.playerTurn();
+
+            if (hasWon) {
+                return;
+            }
+
+            this.monsterTurn();           
+        },
+
         specialAttack() {
 
+            // Duplicate damage dealt
+            let hasWon = this.playerTurn(2);
+            
+            if (hasWon) {
+                return;
+            }
+
+            this.monsterTurn();
         },
 
         heal() {
