@@ -27,6 +27,8 @@ new Vue({
         },
         
         gameIsRunning: false,
+
+        turns: []
     },
 
     methods: {
@@ -39,6 +41,8 @@ new Vue({
         startGame() {
 
             this.gameIsRunning = true;
+
+            this.turns = [];
 
             this.resetHealth();
         },
@@ -74,10 +78,19 @@ new Vue({
             return finished;
         },
 
+        logAction(isPlayer, action, text) {
+            this.turns.unshift({isPlayer, action, text});
+        },
+
         playerTurn(action, multiplier = 1) {
 
             if (action === this.actions.attack) {
-                this.monster.health -= this.getDamageToDeal(this.player) * multiplier;
+                let damage = this.getDamageToDeal(this.player) * multiplier
+                this.monster.health -= damage;
+
+                let message = multiplier > 1 ? `. It dealt ${multiplier}X damage!` : '';
+
+                this.logAction(true, this.actions.attack, `Player hits Monster for ${damage}${message}`);
             }
             else {
                 if (this.player.health <= 90) {
@@ -86,6 +99,8 @@ new Vue({
                 else {
                     this.player.health = 100;
                 }
+
+                this.logAction(true, this.actions.heal, `Player healed`);
             }      
 
             return this.assertGameFinished(this.player, this.monster);
@@ -93,7 +108,10 @@ new Vue({
 
         monsterTurn(multiplier = 1) {
 
-            this.player.health -= this.getDamageToDeal(this.monster) * multiplier;
+            let damage = this.getDamageToDeal(this.monster) * multiplier;
+            this.player.health -= damage;
+
+            this.logAction(false, this.actions.attack, `Monster hits Player for ${damage}`);
             
             return this.assertGameFinished(this.monster, this.player);
         },
