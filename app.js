@@ -46,7 +46,6 @@ new Vue({
         getDamageToDeal(character) {
 
             // Get random number between minimum and maximum damage
-
             return Math.max(Math.floor(Math.random() * character.damage.max) + 1, character.damage.min);
         },
 
@@ -81,10 +80,10 @@ new Vue({
                 this.monster.health -= this.getDamageToDeal(this.player) * multiplier;
             }
             else {
-                if (this.player.health < 100) {
+                if (this.player.health <= 90) {
                     this.player.health += this.player.damage.max;
                 }
-                if (this.player.health > 100) {
+                else {
                     this.player.health = 100;
                 }
             }      
@@ -132,6 +131,7 @@ new Vue({
 
         giveUp() {
 
+            this.gameIsRunning = false;
         }
     }
 })
